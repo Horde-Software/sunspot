@@ -29,6 +29,12 @@ namespace :sunspot do
       reindex_options[:batch_size] = args[:batch_size].to_i if args[:batch_size].to_i > 0
     end
 
+    Rails.root.join('app', 'models').tap do |models_path|
+      Dir.glob(models_path.join('**', '*.rb')).map do |path| 
+        ActiveSupport::Dependencies.require_or_load path.sub(models_path.to_s+'/', '')[0..-4] rescue nil
+      end.compact
+    end
+
     # Load all the application's models. Models which invoke 'searchable' will register themselves
     # in Sunspot.searchable.
     Dir.glob(Rails.root.join('app/models/**/*.rb')).each { |path| require path }
